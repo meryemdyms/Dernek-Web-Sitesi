@@ -1,4 +1,4 @@
 package org.example.dernekwebsitesi.controller;
 
-public interface DuyuruController {
+public interface UserDuyuruController {
 }

@@ -19,4 +19,7 @@ public class HaberResponseDto {
     private LocalDate gecerlilikTarihi;
 
     private String haberLinki;
+
+
+
 }

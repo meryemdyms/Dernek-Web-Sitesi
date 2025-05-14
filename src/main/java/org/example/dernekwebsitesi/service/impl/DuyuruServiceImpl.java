@@ -1,8 +1,81 @@
 package org.example.dernekwebsitesi.service.impl;
 
+import org.example.dernekwebsitesi.dto.DuyuruRequestDto;
+import org.example.dernekwebsitesi.dto.DuyuruResponseDto;
+import org.example.dernekwebsitesi.mapper.DuyuruMapper;
+import org.example.dernekwebsitesi.model.Duyuru;
+import org.example.dernekwebsitesi.repository.DuyuruRepository;
+import org.example.dernekwebsitesi.service.DuyuruService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Optional;
 
 @Service
-public class DuyuruServiceImpl {
+public class DuyuruServiceImpl implements DuyuruService {
 
+    @Autowired
+    DuyuruRepository duyuruRepository;
+    @Autowired
+    DuyuruMapper duyuruMapper;
+    @Autowired
+    FileStorageServiceImpl fileStorageService;
+
+
+    @Override
+    public DuyuruResponseDto kaydetDuyuru(DuyuruRequestDto dto)  throws IOException {
+
+
+        String resimPath = fileStorageService.store(dto.getResim());
+        Duyuru entity = duyuruMapper.dtoToEntity(dto, resimPath);
+        Duyuru saved = duyuruRepository.save(entity);
+
+        return duyuruMapper.entityToDto(saved);
+
+    }
+
+    @Override
+    public void silDuyuruById(Long ID) {
+
+        Optional<Duyuru> optional = duyuruRepository.findById(ID);
+
+        if(optional.isPresent())
+        {
+            duyuruRepository.delete(optional.get());
+
+        }
+
+    }
+
+    @Override
+    public DuyuruResponseDto güncelleDuyuru(Long ID, DuyuruRequestDto dto) throws IOException {
+        Optional<Duyuru> optional = duyuruRepository.findById(ID);
+        if (optional.isEmpty()) {
+            return null;
+        }
+        Duyuru dbDuyuru = optional.get();
+
+
+        dbDuyuru.setKonu(dto.getKonu());
+        dbDuyuru.setIcerik(dto.getIcerik());
+        dbDuyuru.setGecerlilikTarihi(dto.getGecerlilikTarihi());
+
+
+        MultipartFile yeniResim = dto.getResim();
+        if (yeniResim != null && !yeniResim.isEmpty()) {
+            String eskiUrl = dbDuyuru.getResimUrl();
+            String eskiDosya = eskiUrl.startsWith("/") ? eskiUrl.substring(1) : eskiUrl;
+            fileStorageService.delete(eskiDosya);
+
+            String yeniAdi = fileStorageService.store(yeniResim);
+            String yeniUrl = yeniAdi.startsWith("/") ? yeniAdi : ("/" + yeniAdi);
+            dbDuyuru.setResimUrl(yeniUrl);
+        }
+
+
+        Duyuru saved = duyuruRepository.save(dbDuyuru);
+        return duyuruMapper.entityToDto(saved);
+    }
 }
