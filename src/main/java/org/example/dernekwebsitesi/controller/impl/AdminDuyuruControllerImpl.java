@@ -31,16 +31,16 @@ public class AdminDuyuruControllerImpl implements AdminDuyuruController {
 
     @DeleteMapping("/sil/{id}")
     @Override
-    public void silDuyuruById(@PathVariable(name = "id") Long ID ) {
+    public void silDuyuru(@PathVariable(name = "id") Long ID ) {
 
-        duyuruService.silDuyuruById(ID);
+        duyuruService.silDuyuru(ID);
     }
 
     @PutMapping(path = "/güncelle/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE )
     @Override
-    public DuyuruResponseDto güncelleDuyuru(@PathVariable(name="id") Long ID, @ModelAttribute @Valid DuyuruRequestDto dto) throws IOException {
-        return duyuruService.güncelleDuyuru(ID,dto);
+    public DuyuruResponseDto guncelleDuyuru(@PathVariable(name="id") Long ID, @ModelAttribute @Valid DuyuruRequestDto dto) throws IOException {
+        return duyuruService.guncelleDuyuru(ID,dto);
     }
 }

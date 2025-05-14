@@ -10,7 +10,7 @@ import java.io.IOException;
 public interface AdminDuyuruController {
     public DuyuruResponseDto kaydetDuyuru( DuyuruRequestDto dto) throws IOException;
 
-    public void  silDuyuruById(Long ID);
+    public void  silDuyuru(Long ID);
 
-    public DuyuruResponseDto güncelleDuyuru(Long ID ,DuyuruRequestDto dto) throws IOException;
+    public DuyuruResponseDto guncelleDuyuru(Long ID ,DuyuruRequestDto dto) throws IOException;
 }

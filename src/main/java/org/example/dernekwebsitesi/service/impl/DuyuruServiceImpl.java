@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,7 +39,7 @@ public class DuyuruServiceImpl implements DuyuruService {
     }
 
     @Override
-    public void silDuyuruById(Long ID) {
+    public void silDuyuru(Long ID) {
 
         Optional<Duyuru> optional = duyuruRepository.findById(ID);
 
@@ -50,7 +52,7 @@ public class DuyuruServiceImpl implements DuyuruService {
     }
 
     @Override
-    public DuyuruResponseDto güncelleDuyuru(Long ID, DuyuruRequestDto dto) throws IOException {
+    public DuyuruResponseDto guncelleDuyuru(Long ID, DuyuruRequestDto dto) throws IOException {
         Optional<Duyuru> optional = duyuruRepository.findById(ID);
         if (optional.isEmpty()) {
             return null;
@@ -77,5 +79,20 @@ public class DuyuruServiceImpl implements DuyuruService {
 
         Duyuru saved = duyuruRepository.save(dbDuyuru);
         return duyuruMapper.entityToDto(saved);
+    }
+
+    @Override
+    public List<DuyuruResponseDto> listeleDuyurular() {
+
+        List<DuyuruResponseDto> duyuruDtoList = new ArrayList<>();
+        List<Duyuru> duyuruList = duyuruRepository.findAll();
+
+        for (Duyuru duyuru : duyuruList)
+        {
+            DuyuruResponseDto dto = duyuruMapper.entityToDto(duyuru);
+            duyuruDtoList.add(dto);
+        }
+
+        return duyuruDtoList;
     }
 }
