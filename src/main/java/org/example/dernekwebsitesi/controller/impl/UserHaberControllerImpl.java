@@ -4,6 +4,7 @@ import org.example.dernekwebsitesi.controller.UserHaberController;
 import org.example.dernekwebsitesi.dto.HaberResponseDto;
 import org.example.dernekwebsitesi.service.impl.HaberServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/user/haber")
-
+@PreAuthorize("hasRole('USER')")
 public class UserHaberControllerImpl implements UserHaberController {
 
     @Autowired

@@ -7,11 +7,12 @@ import org.example.dernekwebsitesi.dto.HaberRequestDto;
 import org.example.dernekwebsitesi.dto.HaberResponseDto;
 import org.example.dernekwebsitesi.service.impl.HaberServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/admin/haber")
-
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminHaberControllerImpl implements AdminHaberController {
 
     @Autowired

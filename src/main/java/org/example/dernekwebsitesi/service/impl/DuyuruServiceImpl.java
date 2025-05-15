@@ -30,7 +30,7 @@ public class DuyuruServiceImpl implements DuyuruService {
 
 
     @Override
-    public DuyuruResponseDto kaydetDuyuru(DuyuruRequestDto dto)  throws IOException {
+    public DuyuruResponseDto kaydetDuyuru(DuyuruRequestDto dto)  {
 
 
         String resimPath = fileStorageService.store(dto.getResim());
@@ -57,7 +57,7 @@ public class DuyuruServiceImpl implements DuyuruService {
     }
 
     @Override
-    public DuyuruResponseDto guncelleDuyuru(Long ID, DuyuruRequestDto dto) throws IOException {
+    public DuyuruResponseDto guncelleDuyuru(Long ID, DuyuruRequestDto dto)  {
         Optional<Duyuru> optional = duyuruRepository.findById(ID);
         if (optional.isEmpty()) {
             throw new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND,ID.toString()));
@@ -72,7 +72,7 @@ public class DuyuruServiceImpl implements DuyuruService {
 
         MultipartFile yeniResim = dto.getResim();
         if (yeniResim != null && !yeniResim.isEmpty()) {
-            try {
+
                 // Eski resmi sil
                 String eskiUrl = dbDuyuru.getResimUrl();
                 String eskiDosya = eskiUrl.startsWith("/") ? eskiUrl.substring(1) : eskiUrl;
@@ -83,15 +83,10 @@ public class DuyuruServiceImpl implements DuyuruService {
                 String yeniUrl = yeniAdi.startsWith("/") ? yeniAdi : ("/" + yeniAdi);
                 dbDuyuru.setResimUrl(yeniUrl);
 
-            } catch (IOException e) {
-                // Burada kendi mimarinizden hata fırlatıyorsunuz
-                throw new BaseException(new ErrorMessage
-                        (MessageType.FILE_STORAGE_ERROR,
-                                "Dosya: " + yeniResim.getOriginalFilename()
-                        )
-                );
+
+
             }
-        }
+
 
 
         Duyuru saved = duyuruRepository.save(dbDuyuru);

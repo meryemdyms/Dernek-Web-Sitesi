@@ -21,6 +21,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(createApiError(exception.getMessage(),request));
     }
 
+
+
     public <E> ApiError<E> createApiError(E message,WebRequest request)
     {
         ApiError<E> apiError = new ApiError<>();

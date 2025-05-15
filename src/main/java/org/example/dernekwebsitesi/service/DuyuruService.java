@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.List;
 
 public interface DuyuruService {
-    public DuyuruResponseDto kaydetDuyuru(@RequestBody DuyuruRequestDto dto) throws IOException;
+    public DuyuruResponseDto kaydetDuyuru(@RequestBody DuyuruRequestDto dto) ;
 
     public void  silDuyuru(Long ID);
 
-    public DuyuruResponseDto guncelleDuyuru(Long ID ,DuyuruRequestDto dto) throws IOException;
+    public DuyuruResponseDto guncelleDuyuru(Long ID ,DuyuruRequestDto dto) ;
 
     public List<DuyuruResponseDto> listeleDuyurular();
 

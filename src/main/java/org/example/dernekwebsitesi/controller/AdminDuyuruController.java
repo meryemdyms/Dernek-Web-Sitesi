@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.io.IOException;
 
 public interface AdminDuyuruController {
-    public DuyuruResponseDto kaydetDuyuru( DuyuruRequestDto dto) throws IOException;
+    public DuyuruResponseDto kaydetDuyuru( DuyuruRequestDto dto) ;
 
     public void  silDuyuru(Long ID);
 
-    public DuyuruResponseDto guncelleDuyuru(Long ID ,DuyuruRequestDto dto) throws IOException;
+    public DuyuruResponseDto guncelleDuyuru(Long ID ,DuyuruRequestDto dto) ;
 }
