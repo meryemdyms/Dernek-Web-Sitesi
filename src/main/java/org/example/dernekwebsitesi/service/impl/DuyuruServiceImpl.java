@@ -9,6 +9,7 @@ import org.example.dernekwebsitesi.mapper.DuyuruMapper;
 import org.example.dernekwebsitesi.model.Duyuru;
 import org.example.dernekwebsitesi.repository.DuyuruRepository;
 import org.example.dernekwebsitesi.service.DuyuruService;
+import org.example.dernekwebsitesi.websocket.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,9 @@ public class DuyuruServiceImpl implements DuyuruService {
     @Autowired
     FileStorageServiceImpl fileStorageService;
 
+    @Autowired
+    NotificationService notificationService;
+
 
     @Override
     public DuyuruResponseDto kaydetDuyuru(DuyuruRequestDto dto)  {
@@ -37,7 +41,9 @@ public class DuyuruServiceImpl implements DuyuruService {
         Duyuru entity = duyuruMapper.dtoToEntity(dto, resimPath);
         Duyuru saved = duyuruRepository.save(entity);
 
-        return duyuruMapper.entityToDto(saved);
+        DuyuruResponseDto response = duyuruMapper.entityToDto(saved);
+        notificationService.notifyNewDuyuru(response);
+        return response;
 
     }
 
@@ -90,7 +96,9 @@ public class DuyuruServiceImpl implements DuyuruService {
 
 
         Duyuru saved = duyuruRepository.save(dbDuyuru);
-        return duyuruMapper.entityToDto(saved);
+        DuyuruResponseDto response = duyuruMapper.entityToDto(saved);
+        notificationService.notifyNewDuyuru(response);
+        return response;
     }
 
     @Override
