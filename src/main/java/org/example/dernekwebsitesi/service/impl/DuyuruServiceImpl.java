@@ -2,6 +2,9 @@ package org.example.dernekwebsitesi.service.impl;
 
 import org.example.dernekwebsitesi.dto.DuyuruRequestDto;
 import org.example.dernekwebsitesi.dto.DuyuruResponseDto;
+import org.example.dernekwebsitesi.exception.BaseException;
+import org.example.dernekwebsitesi.exception.ErrorMessage;
+import org.example.dernekwebsitesi.exception.MessageType;
 import org.example.dernekwebsitesi.mapper.DuyuruMapper;
 import org.example.dernekwebsitesi.model.Duyuru;
 import org.example.dernekwebsitesi.repository.DuyuruRepository;
@@ -49,13 +52,15 @@ public class DuyuruServiceImpl implements DuyuruService {
 
         }
 
+        throw new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND,ID.toString()));
+
     }
 
     @Override
     public DuyuruResponseDto guncelleDuyuru(Long ID, DuyuruRequestDto dto) throws IOException {
         Optional<Duyuru> optional = duyuruRepository.findById(ID);
         if (optional.isEmpty()) {
-            return null;
+            throw new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND,ID.toString()));
         }
         Duyuru dbDuyuru = optional.get();
 
@@ -67,13 +72,25 @@ public class DuyuruServiceImpl implements DuyuruService {
 
         MultipartFile yeniResim = dto.getResim();
         if (yeniResim != null && !yeniResim.isEmpty()) {
-            String eskiUrl = dbDuyuru.getResimUrl();
-            String eskiDosya = eskiUrl.startsWith("/") ? eskiUrl.substring(1) : eskiUrl;
-            fileStorageService.delete(eskiDosya);
+            try {
+                // Eski resmi sil
+                String eskiUrl = dbDuyuru.getResimUrl();
+                String eskiDosya = eskiUrl.startsWith("/") ? eskiUrl.substring(1) : eskiUrl;
+                fileStorageService.delete(eskiDosya);
 
-            String yeniAdi = fileStorageService.store(yeniResim);
-            String yeniUrl = yeniAdi.startsWith("/") ? yeniAdi : ("/" + yeniAdi);
-            dbDuyuru.setResimUrl(yeniUrl);
+                // Yeni resmi kaydet
+                String yeniAdi = fileStorageService.store(yeniResim);
+                String yeniUrl = yeniAdi.startsWith("/") ? yeniAdi : ("/" + yeniAdi);
+                dbDuyuru.setResimUrl(yeniUrl);
+
+            } catch (IOException e) {
+                // Burada kendi mimarinizden hata fırlatıyorsunuz
+                throw new BaseException(new ErrorMessage
+                        (MessageType.FILE_STORAGE_ERROR,
+                                "Dosya: " + yeniResim.getOriginalFilename()
+                        )
+                );
+            }
         }
 
 

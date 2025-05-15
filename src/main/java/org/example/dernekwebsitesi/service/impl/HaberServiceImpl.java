@@ -4,6 +4,9 @@ package org.example.dernekwebsitesi.service.impl;
 import org.example.dernekwebsitesi.dto.DuyuruResponseDto;
 import org.example.dernekwebsitesi.dto.HaberRequestDto;
 import org.example.dernekwebsitesi.dto.HaberResponseDto;
+import org.example.dernekwebsitesi.exception.BaseException;
+import org.example.dernekwebsitesi.exception.ErrorMessage;
+import org.example.dernekwebsitesi.exception.MessageType;
 import org.example.dernekwebsitesi.mapper.HaberMapper;
 import org.example.dernekwebsitesi.model.Duyuru;
 import org.example.dernekwebsitesi.model.Haber;
@@ -44,6 +47,8 @@ public class HaberServiceImpl implements HaberService {
             haberRepository.delete(optional.get());
         }
 
+        new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND,"Haber id=" + ID));
+
     }
 
     @Override
@@ -52,7 +57,7 @@ public class HaberServiceImpl implements HaberService {
         Optional<Haber> optional = haberRepository.findById(ID);
 
         if (optional.isEmpty()){
-            return null;
+            new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND, "Haber id=" + ID));
         }
 
         Haber dbHaber = optional.get();
@@ -81,8 +86,22 @@ public class HaberServiceImpl implements HaberService {
 
     @Override
     public HaberResponseDto haberBilgi(Long ID) {
-        return haberRepository.findById(ID)
-                .map(haberMapper::entityToDto)
-                .orElse(null);
+
+        Optional<Haber> optional = haberRepository.findById(ID);
+
+        if (optional.isPresent())
+        {
+            Haber dbHaber = optional.get();
+            HaberResponseDto dto = new HaberResponseDto();
+            dto.setId(dbHaber.getID());
+            dto.setKonu(dbHaber.getKonu());
+            dto.setIcerik(dbHaber.getIcerik());
+            dto.setGecerlilikTarihi(dbHaber.getGecerlilikTarihi());
+            dto.setHaberLinki(dbHaber.getHaberLinki());
+            return dto;
+        }
+
+        throw new BaseException(new ErrorMessage(MessageType.RESOURCE_NOT_FOUND,ID.toString()));
+
     }
 }
