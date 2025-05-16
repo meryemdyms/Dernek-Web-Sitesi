@@ -30,8 +30,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(AUTHENTICATE, REGISTER).permitAll()
-                        .requestMatchers("/ws-endpoint/**"      ).permitAll()   // <-- BURAYI EKLEYİN
+                        .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

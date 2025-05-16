@@ -7,8 +7,10 @@ import org.example.dernekwebsitesi.model.User;
 import org.example.dernekwebsitesi.repository.UserRepository;
 import org.example.dernekwebsitesi.service.AuthService;
 import org.example.dernekwebsitesi.jwt.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,45 +18,50 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepo;
-    private final BCryptPasswordEncoder encoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authManager;
+    @Autowired
+    private  UserRepository userRepository;
+
+    @Autowired
+    private  BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private  JwtService jwtService;
+    @Autowired
+    private  AuthenticationManager authManager;
 
     @Override
-    public AuthResponse register(AuthRequest req) {
-        var user = User.builder()
-                .username(req.getUsername())
-                .password(encoder.encode(req.getPassword()))
-                .role(req.getRole())        // DTO’dan gelen role
+    public AuthResponse register(AuthRequest request) {
+        // 1) Yeni user oluştur
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())             // AuthRequest’e role eklediyseniz
                 .build();
+        userRepository.save(user);
 
-        userRepo.save(user);
-        String token = jwtService.generateToken(user);
+        // 2) Token üret
+        String jwt = jwtService.generateToken(user);
 
-        return AuthResponse.builder()
-                .token(token)
-                .build();
+        return new AuthResponse(jwt, "Kayıt başarılı");
     }
 
+
     @Override
-    public AuthResponse authenticate(AuthRequest req) {
-        // 1) Kimlik doğrulaması
+    public AuthResponse authenticate(AuthRequest request) {
+        // 1) AuthenticationManager ile username/password doğrula
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        req.getUsername(),
-                        req.getPassword()
+                        request.getUsername(),
+                        request.getPassword()
                 )
         );
 
-        // 2) Kullanıcıyı çek, token üret
-        var user = userRepo.findByUsername(req.getUsername())
-                .orElseThrow(); // veya kendi BaseException’ınızla fırlatın
+        // 2) UserDetails çağır (yani loadUserByUsername)
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı"));
 
-        String token = jwtService.generateToken(user);
+        // 3) Token üret
+        String jwt = jwtService.generateToken(user);
 
-        return AuthResponse.builder()
-                .token(token)
-                .build();
+        return new AuthResponse(jwt, "Authentication başarılı");
     }
 }

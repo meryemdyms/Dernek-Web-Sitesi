@@ -1,5 +1,6 @@
 package org.example.dernekwebsitesi.handler;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.example.dernekwebsitesi.exception.BaseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,8 @@ public class GlobalExceptionHandler {
 
 
 
+
+
     public <E> ApiError<E> createApiError(E message,WebRequest request)
     {
         ApiError<E> apiError = new ApiError<>();
@@ -36,6 +39,13 @@ public class GlobalExceptionHandler {
 
         apiError.setException(exception);
         return apiError;
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiError<String>> handleExpiredJwt(ExpiredJwtException ex, WebRequest req) {
+        ApiError<String> err = createApiError("Token’ın süresi dolmuş", req);
+        err.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
     }
 
     private String getHostName()
